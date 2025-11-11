@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace E_Commerce.Domain.Contracts
+namespace E_Commerce.Services
 {
-    public interface IDataIntializer
+    public class ServiceAssemplyReference
     {
-        void Intialize();
     }
 }
