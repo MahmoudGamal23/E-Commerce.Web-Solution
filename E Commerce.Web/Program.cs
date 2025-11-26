@@ -6,7 +6,10 @@ using E_Commerce.Persistence.Repositories;
 using E_Commerce.Services;
 using E_Commerce.Services.MappingProfiles;
 using E_Commerce.Services_Abstraction;
+using E_Commerce.Web.CustomMiddleWares;
 using E_Commerce.Web.Extensions;
+using E_Commerce.Web.Factories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -44,6 +47,12 @@ namespace E_Commerce.Web
             });
             builder.Services.AddScoped<IBasketRepository, BasketRepository>();
             builder.Services.AddScoped<IBasketService, BasketService>();
+            builder.Services.AddScoped<ICacheRepository, CacheRepository>();
+            builder.Services.AddScoped<ICacheService, CacheService>();
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = ApiResponseFactory.GenerateApiValidationResponse;
+            });
             #endregion
 
             var app = builder.Build();
@@ -52,11 +61,16 @@ namespace E_Commerce.Web
 
             await app.MigrateDatabaseAsync();
             await app.SeedDatabaseAsync();
-            
+
 
             #endregion
 
+
+
             #region Configure the HTTP request pipeline.
+
+            app.UseMiddleware<ExceptionHandlerMiddleWare>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
