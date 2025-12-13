@@ -12,10 +12,13 @@ using E_Commerce.Web.CustomMiddleWares;
 using E_Commerce.Web.Extensions;
 using E_Commerce.Web.Factories;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.Text;
 
 
 
@@ -70,6 +73,26 @@ namespace E_Commerce.Web
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<StoreIdentityDbContext>();
+
+            builder.Services.AddAuthentication(Options =>
+            {
+                Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(Options =>
+            {
+                Options.SaveToken = true;
+                Options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = builder.Configuration["JWTOptions:Issuer"],
+                    ValidAudience = builder.Configuration["JWTOptions:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:SecuretyKey"]!))
+                };
+            });
+            
+
             #endregion
 
             var app = builder.Build();
@@ -96,10 +119,9 @@ namespace E_Commerce.Web
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseStaticFiles();
-
-
             app.MapControllers();
             #endregion
 

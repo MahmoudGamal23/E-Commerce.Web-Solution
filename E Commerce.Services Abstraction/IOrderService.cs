@@ -1,5 +1,5 @@
 ﻿using E_Commerce.Shared.CommonResult;
-using E_Commerce.Shared.DTOs.IdentityDTOs;
+using E_Commerce.Shared.DTOs.OrderDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace E_Commerce.Services_Abstraction
 {
-    public interface ICacheService
+    public interface IOrderService
     {
-        Task<string?> GetAsync(string CacheKey);
-        Task SetAsync(string CacheKey, object CacheValue, TimeSpan TimeToLive);
-       
-
+        Task<Result<OrderToReturnDTO>> CreateOrderAsync(OrderDTO orderDTO, string Email);
     }
 }
